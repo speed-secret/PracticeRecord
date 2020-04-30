@@ -1,0 +1,228 @@
+Practice 4.30
+
+DPI: cutting rope
+DPI: Array Hopper II
+LargestRectangleInHistogram
+Integer to English word
+Design tic-tac-toe player game
+Sliding window maximum
+Serialize and deserilization
+
+1. Cutting rope
+private static int maxRope(int n) {
+  //n >= 2 would make sense
+  if (n < 2) {
+    return 0;
+  }
+  int[] maxProduct = new int[n + 1];
+  maxProduct[1] = 1;
+  maxProduct[2] = 1;
+  for (int i = 3; i <= n; i++) {
+    for (int j = 0; j <= i / 2; j++) {
+      maxProduct[i] = Math.max(maxProduct[i], Math.max(i - j, maxProduct[i - j]) * j);
+    }
+  }
+  return maxProduct[n];
+  }
+  
+  2.Array Hopper II
+  //use a int[] minJump from left Most to i;
+  //check how many steps needed to go to i position
+  //it is possible that they can not jump to the end;
+  if (array == null ||array.length == 0 ) {
+    return 0;
+  }
+  int[] minJump = new int[array.length];
+  minJump[0] = 0;
+  for (int i = 1; i < array.length; i++) {
+  //initialize minJump[i] = -1;
+    minJump[i] = -1;
+    for (int j = 0; j < i; j++) {
+      if (minJump[j] != -1 && array[j] + j >= i) {  
+        if (minJump[i] == -1 || minJump[j] + 1 < minJump[i]) {
+          minJump[i] = minJump[j] + 1;
+        }
+      }
+    }
+    return minJump[array.length - 1];
+  }
+  
+  3. LargestRectangleInHistogram
+  //use a stack to always record its left boudary, height
+  //record its current max rectangle 
+  //given array is not null or empty
+  
+  [3,2,1,3,4,5,6,2,5];
+  private int maxRectangle(int[] array) {
+    int result = 0;
+    Deque<Integer> stack = new ArrayDeque<>();
+    for (int i = 0; i <= array.length; i++) {
+      int cur = i == array.length ? 0 : array[i];
+      while (!stack.isEmpty() && array[stack.peek()] >= cur) {
+        int height = array[stack.poll()];
+        int left = stack.isEmpty() ? 0 : stack.peek() + 1;
+        result = Math.max(result, height * (i - left));
+      }
+      stack.offer(i);
+    }
+    return result;
+ }
+ 
+ 4. Integer to English words
+ //so we really need a set of String array which could represent the different words
+ //here are three in my mind: lessThanTwenty, tens, thousands
+ //we gonna check the value of the num, as long as it larger than 0, we should handle it.
+ //how ? to split in several occasions so we can get it done.
+ private static final String[] lessThanTwenty = new String[] {"", "One", "Two", "Three",
+            "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve",
+            "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"};
+  private static final String[] tens = new String[]{"", "Ten", "Twenty", "Thirty", "Forty",
+          "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"};
+  private static final String[] thousands = new String[]{"", "thousand", "million", "billion"};
+
+  public static void main(String[] args) {
+      System.out.println(getWord(88834203));
+  }
+  
+  private static String transferToEnglishWords(int n) {
+    if (n == 0) {
+      return "zero";
+    }
+    int i = 0;
+    String words = "";
+    //test: 4117
+    while (n > 0) {
+    //这里的%不需要去记的其实，只要带入一个数值进去计算验证就知道可不可以
+      if (n % 1000 != 0) {
+        words = helper(n % 1000) + thousands[i] + " " + words;
+      }
+      i++;
+      n /= 1000;
+    }
+    return words.trim();
+  }
+  
+  private static String helper(int num) {
+    if (num == 0) {
+      return "";
+    } else if (num < 20) {
+      return lessThenTwenty[num] + " ";
+    } else if (num < 100) {
+      return tens[num / 10] + " " + helper(num % 10);
+    } else {
+      return helper[num / 100] + " " + "hundred" + " " + helper(num % 100);
+    }
+ }
+      
+5. Design tic-tac-toe player game
+  //in order to design a n * n gird game
+  //we need to design a matrix model
+  //however, in this question which is relatively interested that we don't use a full matrix
+  //but to use a column array and a rows array to indicates its current value with any chance
+  class TicTacToe{
+      int[] rows;
+      int[] cols;
+      int diagonal;
+      int antiDiagonal;
+      
+  public tictactoe{
+    rows = new int[n];
+    cols = new int[n];
+  }
+  
+  public int move(int row, int col, int player) {
+    //use a variable to distinguish player one and two
+    int toAdd = player == 1 ? 1 : -1;
+    rows[row] += toAdd;
+    cols[col] += toAdd;
+    if (row == col){
+     diagonal += toAdd;
+    }
+    if (col == cols.length - row - 1){
+      antiDiagonal += toAdd;
+    }
+    int size = cols.length;
+    if (rows[row] == size || 
+      cols[col] == size ||
+      diagonal == size ||
+   antiDiagonal == size) {
+      return player;
+   }
+   return 0;
+ }
+}
+
+6. MaxSliding Window
+//use a deque
+//0 
+//1 3 5 8 4 2
+        3 4 5
+private int[] maxSliding(int[] nums) {
+  if (nums == null || nums.length == 0) {
+    return new int[0];
+  }
+  Deque<Integer> deque = new ArrayDeque<>();
+  int[] result = new int[nums.length - k + 1];
+  for (int i = 0; i < nums.length; i++) {
+    //poll what ever is out of the boundary
+    while (!deque.isEmpty() && deque.peekFirst() < i - k + 1) {
+      deque.pollFirst();
+    }
+    while (!deque.isEmpty() && nums[deque.peekLast()] < nums[i]) {
+      deque.pollLast();
+    }
+    deque.offerLast(i);
+    if (i >= k - 1) {
+      result[i - k + 1] = nums[deque.peekFirst()];
+    }
+  }
+  return result;
+ }
+ 
+ 7.Serialize and Deserialize
+ //we need to convert a binary tree to a String so we can store them in our database
+ //so I would like to use a StringBuilder to temperorily store the element in it
+ 
+ class TreeNode {
+     int val;
+     TreeNode left;
+     TreeNode right;
+     public TreeNode(int val) {
+        this.val = val;
+     }
+ }
+ 
+ public String serialization(TreeNode root) {
+    return serialize(new StringBuilder(), root).toString();
+ }
+ 
+ public StringBuilder serialize(StringBuilder sb, TreeNode root) {
+    if (root == null) {
+      sb.append("#");
+    }
+    sb.append(root.val).append(",");
+    serialize(sb, root.left).append(",");
+    //due to the reason that root.left would return a "," so there is no need to append after root.right
+    serialize(sb, root.right);
+    return sb;
+ }
+ 
+ private TreeNode deserialization(String data) {
+    if (data == null) {
+      return null;
+    }
+    return deserialize(new ArrayDeque<String>(Arrays.asList(data.split(","))));
+ }
+ 
+ private TreeNode deserialize(Deque<String> q) {
+    String str = q.poll();
+    if (str.equals("#") {
+      return null;
+    }
+    TreeNode root = new TreeNode(Integer.valueOf(str));
+    root.left = deserialize(q);
+    root.right = deserialize(q);
+    return root;
+ }
+ 
+   
